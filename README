@@ -1,0 +1,200 @@
+nehora.moshe
+dawndude
+
+
+=============================
+=      File description     =
+=============================
+ClassScanner- the ClassScanner package
+    ClassHandlers.java- implementation of the ClassHandlers class
+    ClassScanner.java- implementation of the ClassScanner class
+dataHolderClasses- the dataHolderClasses package
+      Function.java- implementation of the Function class
+      Variable.java- implementation of the Variable class
+FunctionCompiler- the FunctionCompiler package
+    FunctionCompiler.java- implementation of the FunctionCompiler class
+    FunctionHandlers.java- implementation of the FunctionHandlers class
+SyntaxExceptions- the SyntaxExceptions package
+    BadApplication- the BadApplication package
+        BadApplicationFormat.java- implementation of the BadApplicationFormat exception
+        ValueDoesntExists.java- implementation of the ValueDoesntExists exception
+        ValueNotInitialized.java- implementation of the ValueNotIntialized exception
+        VariableDoesntExists.java- implementation of the VariableDoesntExists exception
+        VariableIsFinal.java- implementation of the VariableIsFinal exception
+    BadInit- the BadInit package
+        BadInitializedFormat.java- implementation of the BadInitializedFormat exception
+        IllegalType.java- implementation of the IllegalType exception
+        IllegalValueType.java- implementation of the IllegalValueType exception
+        IllegalVariableName.java- implementation of the IllegalVariableName exception
+        UninitializedFinal.java- implementation of the UninitializedFinal exception
+        VariableAlreadyExists.java- implementation of the VariableAlreadyExists exception
+    BadMethodCall- the BadMethodCall package
+        BadMethodCallFormat.java- implementation of the BadMethodCallFormat exception
+        MethodDoesntExist.java- implementation of the MethodDoesntExist exception
+        WrongParameters.java- implementation of the WrongParameters exception
+    BadMethodDeclaration- the BadMethodDeclaration package
+        BadMethodDeclarationFormat.java- implementation of the BadMethodDeclarationFormat exception
+        IllegalMethodName.java- implementation of the IllegalMethodName exception
+        IllegalParameters.java- implementation of the IllegalParameters exception
+        MethodAlreadyExists.java- implementation of the MethodAlreadyExists exception
+    MissingReturnStatement.java- implementation of the MissingReturnStatement exception
+    SyntaxException.java- implementation of the SyntaxException exception
+SyntaxValidator- the SyntaxValidator package
+    VarType- the VarType package
+        VarType.java- implementation of the VarType class
+        VarTypeFactory.java- implementation of the VarTypeFactory class
+        VarTypeValidator.java- implementation of the VarTypeValidator class
+    AppValidator.java- implementation of the AppValidator class
+    FunctionCallValidator.java- implementation of the FunctionCallValidator class
+    FunctionValidator.java- implementation of the FunctionValidator class
+    IfWhileValidator.java- implementation of the IfWhileValidator class
+    InitValidator.java- implementation of the InitValidator class
+    LineSyntaxValidator.java - implementation of the abstract class LineSyntaxValidator
+    SyntaxValidator.java- implementation of the SyntaxValidator interface
+Sjavac.java- implementation of the main class for this project
+README - this file.
+
+=============================
+=          Design           =
+=============================
+
+In our project, we tried as always to deduct the task into many small independent tasks. we've separated the task as
+follows :
+
+                                           ______________Sjavac______________
+                                          /                                  \
+                                    FunctionCompiler                    ClassScanner
+                                    /                                            \
+                            FunctionHandlers                                ClassHandlers
+
+
+                                           __________SyntaxValidator________________
+                                         /                                           \
+                          __________LineSyntaxValidator______________________       VarType
+                        /            /            \          \                \
+                InitValidator  IfWhileValid' FunctionValid' Func'CallValid'  AppValid'
+
+
+the program works in a way that the Sjava recieves the name of a file to compile.
+then, it sends the file to the ClassScanner:
+
+the classScanner goes throw the file, and make sure it is according to a certain format, ie white space,
+legal variable declaration lines, legal function declaration lines and so on, it saves all the declared variables as
+Variable class, a class that holds information about the variable like its names and its type, in a variable hash map.
+it does the same with functions, saving the declared functions as Function class, which holds their names and parameters
+and puts them inside a hash map of strings, holding their names (for quick access), and Functions, holding their
+respective Function class.moreover, the Function class holds all of the lines which are inside that function, allow
+the ClassScanner to only deal with the general structure of the file.
+
+afterwards, it takes all of the declared functions and sends their Function class and the hash maps to
+the FunctionCompiler:
+
+the FunctionCompiler takes a Function class and checks its validity, it marches through all the lines in a given
+Function class and sees if their are according to syntax, and if there is valid use of the variables inside (ie checks
+in case of x = y that x is declared, y is initialized and of a valid type to be held by x). after going through all
+of the lines, it makes sure that the last line of the function is indeed a return statement.
+
+Both the ClassScanner and the FunctionCompiler makes use of their respective Handlers, made to deal with each type
+of lines that can occur in their sections, sadly some of their handlers might be similar in essence, but different
+in execution, therefor we had to create separate handlers for each one.
+
+The Handlers make use of the SyntaxValidators, each with the validator made for its responsibility and the use
+of the VarType SyntaxValidator, together they can assert the validation of any line under their responsibility.
+Using the VarTypeFactory, each handler can receive the correct VarType strategy and then use the correct version of
+the valid() function in each situation.
+
+our exception tree is as follows :
+
+                       ___________________SyntaxException_____________________________
+                     /          /                /                     \               \
+         BadApp'Format   BadInit'Format  BadMethodCallFormat   BadMethodDeclaration  MissingReturn
+
+
+
+each of these sub-exceptions have sub-exceptions describing a more specific error,  for example the BadApplicationFormat
+Exception sub-tree has ValueDoesntExists exception, for if the given value in an initialization line doesn't exists,
+or ValueNotInitialized if the value is not initialized, and so on.
+for every possible exception that occurs for a specific reason, there is an exception with informative message
+describing what went wrong. (there are too many to graphically show in this readme)
+
+that is in essence how our program divides its job into little smaller tasks and solves them individually.
+
+we've made the project as modular as we could, making each class as independent as possible, and understandable.
+we've also tried to follow the Open-Close and Single-Choice principles as much as we can to make the code upgradable
+in the future. (this can be seen at how relatively easy it is to implement the new functionality discussed in the
+question segment to our existing project). moreover we used the Strategy design with the VarType class, allowing
+for a very simple interface for the functions working with instances of that class (which is also an enum).
+
+we've used the Hash Map data structure to hold most of our big data repositories (where ever the order of the data
+wasn't important, for example the Function Map), we found this to be the best data structure for us since it allows
+for a very quick search of the data base, and since all we are saving and searching by are names, with a finite number
+of possible characters, this will allow for a relativly quick search by key compare to other data structures we
+considered (ArrayLists, LinkedLists, TreeSets and so on), the Map aspect allowed us to save the correct
+Variable/Function class to each key, a combination that allowed us to have quick access to the correct item by
+searching the variable's or function's name, and also allowing us to hold a lot of vital information about each item
+through their data holding class.
+
+sadly, even though I personally like the decorator design pattern, me and my partner haven't found a use for it in this
+project.
+
+=============================
+=  Implementation details   =
+=============================
+
+most packages are technically independent of the others and can theoretically be used in different projects.
+throughout the project we tried our best to not create new data structures and use existing ones if possible.
+as stated and detailed in the design segment, we decided to use Hash Maps as our primary large data repository,
+where the order of the items was of great importance, we've used the ArrayList data structure, allowing us quick
+access by index the the items inside, while keeping order of who was inserted before whom.
+
+The way we dealt with exceptions in this project was described in the design segment, however I feel it's important
+to say that since all of these exceptions are inheriting from the general "SyntaxException" exception, it was very
+easy to write in code, essentially making us throw this general syntax exception error, but create the specific
+exception where it happened, and let it resurface to the main class and print itself. (this also makes it very easy
+to add new SyntaxExceptions if needed).
+
+We've done our best to set meaningful names to our variables to make the code more readable, as well as make
+a good use of final variables, to avoid using any "magic numbers/strings". any other implementation details were
+discussed in my design decision.
+
+=============================
+=    Answers to questions   =
+=============================
+
+2 regex's we used :
+___________________
+
+1 - (void)( )(\s)*([a-zA-Z]\w*)( |\s)*\(([^)]*)\)( |\s)*(\{)
+a regex used to check the validity of a given line if its according to the method declaration format (receives a
+trimmed line), if a line passes through this regex, we know its according to the general format of a method declaration
+line, and all thats left is to check its parameters. the way its writted, it allows to easily capture the method's name
+(group 4) and it deals with all possible whitespace issues (it also makes sure theres a space between "void" and the
+method's name).
+
+2 - ((_(\w)+)|([a-zA-Z](\w)*))+
+a regex that checks if a given string is a valid variable name according to the format described in the exercise's
+description. it catches all possible options with ease. (i know some grouping here is irrelevant, however I like
+writing the regexs this way, makes it more readable to me).
+
+How would you modify your code to add new types of variables?
+_____________________________________________________________
+
+adding new variables to our project is fairly straight forward and simple, and there is only 1 package that needs to
+be modified thanks to our Strategy design for VarTypes.
+essentially you need to add the new type as an enum in VarType with its corresponding regex (how it should be written),
+after that you need to add it to the VarType factory and as a valid type in the LineSyntaxValid' and viola, its done.
+
+How would we implement the use of standard java methods?
+________________________________________________________
+
+again, fairly simple, before you make the firstRun in the ClassScanner you simply need to add to the Functions Hash Map
+java's standard functions with their allowed parameters and its done, the code will now recognise their use as valid.
+
+How would we implement new methods' types?
+__________________________________________
+
+We would need to add a new field to the Function class, holding a VarType with the corresponding return type, then,
+when we go through the function lines we'll need to make sure each time a return statement appears it is followed by
+a valid type (simply using VarType's valid() function, so easy!), moreover we'd need to support initializing a variable
+using a function's return value, this is also rather simple, we'll just need to also search the function hash map and
+compare the function VarType with the variable trying to initialize with it.
