@@ -1,8 +1,8 @@
 # Simplified-Java-Verifier
 
-=============================
-=      File description     =
-=============================
+==========================
+=    File description    =
+==========================
 ClassScanner- the ClassScanner package
     ClassHandlers.java- implementation of the ClassHandlers class
     ClassScanner.java- implementation of the ClassScanner class
@@ -52,9 +52,9 @@ SyntaxValidator- the SyntaxValidator package
 Sjavac.java- implementation of the main class for this project
 README - this file.
 
-=============================
-=          Design           =
-=============================
+==========================
+=          Design        =
+==========================
 
 In our project, we tried as always to deduct the task into many small independent tasks. we've separated the task as
 follows :
@@ -155,9 +155,9 @@ We've done our best to set meaningful names to our variables to make the code mo
 a good use of final variables, to avoid using any "magic numbers/strings". any other implementation details were
 discussed in my design decision.
 
-=============================
-=    Answers to questions   =
-=============================
+===========================
+=   Answers to question   =
+===========================
 
 2 regex's we used :
 ___________________
